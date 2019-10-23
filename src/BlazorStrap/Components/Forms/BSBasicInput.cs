@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.AspNetCore.Components.Web;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -17,6 +18,7 @@ namespace BlazorStrap
     {
         [Parameter(CaptureUnmatchedValues = true)] public IDictionary<string, object> UnknownParameters { get; set; }
         [CascadingParameter] protected EditContext MyEditContext { get; set; }
+        [Inject] protected Microsoft.JSInterop.IJSRuntime JSRuntime { get; set; }
 
         private const string _dateFormat = "yyyy-MM-dd";
         protected string Classname =>
@@ -55,6 +57,10 @@ namespace BlazorStrap
         [Parameter] public int? SelectSize { get; set; }
         [Parameter] public int? SelectedIndex { get; set; }
         [Parameter] public string Class { get; set; }
+        [Parameter] public CultureInfo CultureInfo { get; set; } = new CultureInfo("pt-BR");
+        [Parameter] public string Mask { get; set; }
+        [Parameter] public bool MaskReverse { get; set; }
+        [Parameter] public string MaskPlaceholder { get; set; }
 
         // [Parameter] public string Class { get; set; }
         [Parameter] public RenderFragment ChildContent { get; set; }
@@ -84,6 +90,36 @@ namespace BlazorStrap
         protected void OnChange(string e)
         {
             CurrentValueAsString = e;
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                if (UnknownParameters.TryGetValue("id", out var id))
+                {
+                    var mask = InputType switch
+                    {
+                        InputType.Money => "000.000.000.000.000,00",
+                        InputType.Percent => "000.000.000.000,00000",
+                        InputType.Mask => Mask,
+                        _ => ""
+                    };
+
+                    if (!string.IsNullOrEmpty(mask))
+                    {
+                        var maskPlaceHolder = InputType switch
+                        {
+                            InputType.Money => "0.00",
+                            InputType.Percent => "0.00",
+                            InputType.Mask => MaskPlaceholder,
+                            _ => ""
+                        };
+
+                        await new BlazorStrapInterop(JSRuntime).SetMask(id.ToString(), mask, MaskReverse, maskPlaceHolder);
+                    }
+                }
+            }
         }
 
         protected void OnClick(MouseEventArgs e)
@@ -118,7 +154,7 @@ namespace BlazorStrap
                 {
                     Value = ((string)(object)Value).ToLowerInvariant() != "false" ? (T)(object)"true" : (T)(object)"false";
                 }
-                builder.AddAttribute(8, "checked", Convert.ToBoolean(Value, CultureInfo.InvariantCulture));
+                builder.AddAttribute(8, "checked", Convert.ToBoolean(Value, CultureInfo));
                 builder.AddAttribute(9, "onclick", EventCallback.Factory.Create(this, OnClick));
             }
             else if(InputType == InputType.Radio)
@@ -157,13 +193,13 @@ namespace BlazorStrap
             return value switch
             {
                 null => null,
-                int @int => BindConverter.FormatValue(@int, CultureInfo.InvariantCulture),
-                long @long => BindConverter.FormatValue(@long, CultureInfo.InvariantCulture),
-                float @float => BindConverter.FormatValue(@float, CultureInfo.InvariantCulture),
-                double @double => BindConverter.FormatValue(@double, CultureInfo.InvariantCulture),
-                decimal @decimal => BindConverter.FormatValue(@decimal, CultureInfo.InvariantCulture),
-                DateTime dateTimeValue => BindConverter.FormatValue(dateTimeValue, _dateFormat, CultureInfo.InvariantCulture),
-                DateTimeOffset dateTimeOffsetValue => BindConverter.FormatValue(dateTimeOffsetValue, _dateFormat, CultureInfo.InvariantCulture),
+                int @int => BindConverter.FormatValue(@int, CultureInfo),
+                long @long => BindConverter.FormatValue(@long, CultureInfo),
+                float @float => BindConverter.FormatValue(@float, CultureInfo),
+                double @double => BindConverter.FormatValue(@double, CultureInfo),
+                decimal @decimal => @decimal.ToString("#,#.00###;(#,#.00###)", CultureInfo),
+                DateTime dateTimeValue => BindConverter.FormatValue(dateTimeValue, _dateFormat, CultureInfo),
+                DateTimeOffset dateTimeOffsetValue => BindConverter.FormatValue(dateTimeOffsetValue, _dateFormat, CultureInfo),
                 _ => value?.ToString()
             };
         }
@@ -207,25 +243,25 @@ namespace BlazorStrap
             }
             else if (typeof(T) == typeof(int) || typeof(T) == typeof(int?))
             {
-                result = (T)(object)Convert.ToInt32(value, CultureInfo.InvariantCulture);
+                result = (T)(object)Convert.ToInt32(value, CultureInfo);
                 validationErrorMessage = null;
                 return true;
             }
             else if (typeof(T) == typeof(long) || typeof(T) == typeof(long?))
             {
-                result = (T)(object)Convert.ToInt64(value, CultureInfo.InvariantCulture);
+                result = (T)(object)Convert.ToInt64(value, CultureInfo);
                 validationErrorMessage = null;
                 return true;
             }
             else if (typeof(T) == typeof(double) || typeof(T) == typeof(double?))
             {
-                result = (T)(object)double.Parse(value, CultureInfo.InvariantCulture);
+                result = (T)(object)double.Parse(value, CultureInfo);
                 validationErrorMessage = null;
                 return true;
             }
             else if (typeof(T) == typeof(decimal) || typeof(T) == typeof(decimal?))
             {
-                result = (T)(object)decimal.Parse(value, CultureInfo.InvariantCulture);
+                result = (T)(object)decimal.Parse(value, CultureInfo);
                 validationErrorMessage = null;
                 return true;
             }
@@ -246,36 +282,36 @@ namespace BlazorStrap
             }
             else if (typeof(T) == typeof(DateTime) || typeof(T) == typeof(DateTime?))
             {
-                if (TryParseDateTime(value, out result))
+                if (TryParseDateTime(value, out result, CultureInfo))
                 {
                     validationErrorMessage = null;
                     return true;
                 }
                 else
                 {
-                    validationErrorMessage = string.Format(CultureInfo.InvariantCulture, "The {0} field must be a date.", type.Name);
+                    validationErrorMessage = string.Format(CultureInfo, "The {0} field must be a date.", type.Name);
                     return false;
                 }
             }
             else if (typeof(T) == typeof(DateTimeOffset) || typeof(T) == typeof(DateTimeOffset?))
             {
-                if (TryParseDateTimeOffset(value, out result))
+                if (TryParseDateTimeOffset(value, out result, CultureInfo))
                 {
                     validationErrorMessage = null;
                     return true;
                 }
                 else
                 {
-                    validationErrorMessage = string.Format(CultureInfo.InvariantCulture, "The {0} field must be a date.", type.Name);
+                    validationErrorMessage = string.Format(CultureInfo, "The {0} field must be a date.", type.Name);
                     return false;
                 }
             }
             throw new InvalidOperationException($"{GetType()} does not support the type '{typeof(T)}'.");
         }
 
-        private static bool TryParseDateTime(string value, out T result)
+        private static bool TryParseDateTime(string value, out T result, CultureInfo cultureInfo)
         {
-            var success = BindConverter.TryConvertToDateTime(value, CultureInfo.InvariantCulture, _dateFormat, out DateTime parsedValue);
+            var success = BindConverter.TryConvertToDateTime(value, cultureInfo, _dateFormat, out DateTime parsedValue);
             if (success)
             {
                 result = (T)(object)parsedValue;
@@ -288,9 +324,9 @@ namespace BlazorStrap
             }
         }
 
-        private static bool TryParseDateTimeOffset(string value, out T result)
+        private static bool TryParseDateTimeOffset(string value, out T result, CultureInfo cultureInfo)
         {
-            var success = BindConverter.TryConvertToDateTimeOffset(value, CultureInfo.InvariantCulture, _dateFormat, out DateTimeOffset parsedValue);
+            var success = BindConverter.TryConvertToDateTimeOffset(value, cultureInfo, _dateFormat, out DateTimeOffset parsedValue);
             if (success)
             {
                 result = (T)(object)parsedValue;

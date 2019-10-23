@@ -15,8 +15,15 @@
         <BSRow>
             <BSFormGroup Class="col-md-12">
                 <BSLabel For="exampleMoney">Money</BSLabel>
-                <BSInput InputType="InputType.Mask" Id="exampleMoney" @bind-Value="@formsModelMask.Money" Mask="0.000.000.000.000,00" MaskPlaceholder="0.00"  />
+                <BSInput InputType="InputType.Money" Id="exampleMoney" @bind-Value="@formsModelMask.Money" />
                 <BSFormFeedback For="@(() => formsModelMask.Money)" ValidMessage="Sweet! that name is available" />
+            </BSFormGroup>
+        </BSRow>
+        <BSRow>
+            <BSFormGroup Class="col-md-12">
+                <BSLabel For="examplePercent">Percent</BSLabel>
+                <BSInput InputType="InputType.Percent" Id="examplePercent" @bind-Value="@formsModelMask.Percent" />
+                <BSFormFeedback For="@(() => formsModelMask.Percent)" ValidMessage="Sweet! that name is available" />
             </BSFormGroup>
         </BSRow>
         <BSRow>
@@ -240,6 +247,7 @@
         public string Blank { get; set; }
         public string Email { get; set; } = "email@example.com";
         public decimal? Money { get; set; }
+        public decimal? Percent { get; set; }
         public string CPF {get;set;}
     }
 }

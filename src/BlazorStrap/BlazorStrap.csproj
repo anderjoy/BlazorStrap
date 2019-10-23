@@ -7,7 +7,7 @@
     <RazorLangVersion>3.0</RazorLangVersion>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
     <PackageId>BlazorStrap</PackageId>
-    <Version>1.0.106.1</Version>
+    <Version>1.0.106.3</Version>
     <Authors>Chanan Braunstein; John Bomhold</Authors>
     <Title>Blazor BootStrap</Title>
     <Description>A bootstrap4 component library for Blazor</Description>
@@ -16,6 +16,7 @@
     <RepositoryUrl>https://github.com/chanan/BlazorStrap</RepositoryUrl>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageReleaseNotes>Adicionado mascaras padrões para Dinheiro, Porcentagem.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

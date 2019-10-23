@@ -136,15 +136,27 @@ namespace BlazorStrap
         {
             if (firstRender)
             {
-                if (!string.IsNullOrEmpty(Mask))
+                if (base.AdditionalAttributes.TryGetValue("id", out var id))
                 {
-                    if (base.AdditionalAttributes.TryGetValue("id", out var id))
+                    var mask = InputType switch
                     {
-                        await new BlazorStrapInterop(JSRuntime).SetMask(id.ToString(), Mask, MaskReverse, MaskPlaceholder);
-                    }
-                    else
+                        InputType.Money => "000.000.000.000.000,00",
+                        InputType.Percent => "000.000.000.000,00000",
+                        InputType.Mask => Mask,
+                        _ => ""
+                    };
+
+                    if (!string.IsNullOrEmpty(mask))
                     {
-                        Debug.Fail("Parameter \"id\" not found");
+                        var maskPlaceHolder = InputType switch
+                        {
+                            InputType.Money => "0.00",
+                            InputType.Percent => "0.00",
+                            InputType.Mask => MaskPlaceholder,
+                            _ => ""
+                        };
+
+                        await new BlazorStrapInterop(JSRuntime).SetMask(id.ToString(), mask, MaskReverse, maskPlaceHolder);
                     }
                 }
             }

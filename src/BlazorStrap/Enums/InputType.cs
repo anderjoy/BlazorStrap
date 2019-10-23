@@ -20,6 +20,10 @@ namespace BlazorStrap
         Month,
         [Description("number")]
         Number,
+        [Description("text")]
+        Money,
+        [Description("text")]
+        Percent,
         [Description("password")]
         Password,
         [Description("radio")]
