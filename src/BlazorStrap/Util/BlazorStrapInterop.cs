@@ -86,7 +86,10 @@ namespace BlazorStrap.Util
             return JSRuntime.InvokeAsync<bool>("blazorStrap.setBootstrapCSS", theme, version);
         }
 
-
+        public ValueTask<object> SetMask(string el, string mask, bool maskReverse, string maskPlaceholder)
+        {
+            return JSRuntime.InvokeAsync<object>("blazorStrap.setMask", el, mask, maskReverse, maskPlaceholder);
+        }
     }
 
     public class StringReturn

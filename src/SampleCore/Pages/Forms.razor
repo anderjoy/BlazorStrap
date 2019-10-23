@@ -5,24 +5,29 @@
 <BSAlert Color="Color.Warning">Form tags are not finished. Binding, specifically of the select tag, still needs work.</BSAlert>
 
 <div class="docs-example">
-    <BSBasicForm >
-        <BSFormGroup>
-            <BSLabel For="exampleInputEmail1">Email address</BSLabel>
-            <BSBasicInput Id="exampleInputEmail1" InputType="InputType.Email" PlaceHolder="Enter email" Value="string.Empty"  />
-            <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
-        </BSFormGroup>
-        <BSFormGroup>
-            <BSLabel For="exampleInputPassword1">Password</BSLabel>
-            <BSBasicInput Id="exampleInputPassword1" InputType="InputType.Password" PlaceHolder="Password" Value="string.Empty"/>
-        </BSFormGroup>
-        <BSFormGroup IsCheck="true">
-            <BSBasicInput Id="exampleCheck1" InputType="InputType.Checkbox" Value="string.Empty"/>
-            <BSLabel IsCheck="true" For="exampleCheck1">Check me out</BSLabel>
-        </BSFormGroup>
-        <BSButton Color="Color.Primary" ButtonType="ButtonType.Submit">Submit</BSButton>
-    </BSBasicForm>
+
 </div>
-<PrettyCode CodeFile="_content/SampleCore/snippets/forms/forms1.html" />
+
+
+<div class="docs-example">
+    <BSForm Model="@formsModelMask" ValidateOnInit="true">
+        <DataAnnotationsValidator />
+        <BSRow>
+            <BSFormGroup Class="col-md-12">
+                <BSLabel For="exampleMoney">Money</BSLabel>
+                <BSInput InputType="InputType.Mask" Id="exampleMoney" @bind-Value="@formsModelMask.Money" Mask="0.000.000.000.000,00" MaskPlaceholder="0.00"  />
+                <BSFormFeedback For="@(() => formsModelMask.Money)" ValidMessage="Sweet! that name is available" />
+            </BSFormGroup>
+        </BSRow>
+        <BSRow>
+            <BSFormGroup Class="col-md-12">
+                <BSLabel For="exampleCPF">CPF</BSLabel>
+                <BSInput InputType="InputType.Mask" Id="exampleCPF" @bind-Value="@formsModelMask.CPF" Mask="000.000.000-00" MaskPlaceholder="___.___.___-__" />
+                <BSFormFeedback For="@(() => formsModelMask.Money)" ValidMessage="Sweet! that name is available" />
+            </BSFormGroup>
+        </BSRow>
+    </BSForm>
+</div>
 
 <p>Use @@bind-Value to bind to BSInput value</p>
 
@@ -217,9 +222,11 @@
 <PrettyCode CodeFile="_content/SampleCore/snippets/forms/forms12.html" />
 
 
+
 @code
 {
     private string RadioVlaue = "option1";
+    private FormsModel formsModelMask = new FormsModel();
     private FormsModel formsModelVal = new FormsModel();
     private FormsModel formsModelValTT = new FormsModel();
 
@@ -232,5 +239,7 @@
         public string InValid { get; set; }
         public string Blank { get; set; }
         public string Email { get; set; } = "email@example.com";
+        public decimal? Money { get; set; }
+        public string CPF {get;set;}
     }
 }

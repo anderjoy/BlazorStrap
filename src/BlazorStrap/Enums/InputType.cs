@@ -34,6 +34,8 @@ namespace BlazorStrap
         Tel,
         [Description("text")]
         Text,
+        [Description("text")]
+        Mask,
         [Description("textarea")]
         TextArea,
         [Description("time")]

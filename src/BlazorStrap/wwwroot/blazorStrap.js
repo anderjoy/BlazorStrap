@@ -94,6 +94,12 @@ window.blazorStrap = {
             link.href = `https://stackpath.bootstrapcdn.com/bootswatch/${version}/${theme}/bootstrap.min.css`;
         }
         return true;
+    },
+    setMask: function (element, mask, maskReverse, maskPlaceholder) {
+        $("#" + element).mask(mask, {
+            reverse: maskReverse,
+            placeholder: maskPlaceholder
+        });
     }
 };
 
