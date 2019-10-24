@@ -220,7 +220,8 @@ namespace BlazorStrap
                 long @long => BindConverter.FormatValue(@long, CultureInfo),
                 float @float => BindConverter.FormatValue(@float, CultureInfo),
                 double @double => BindConverter.FormatValue(@double, CultureInfo),
-                decimal @decimal => @decimal.ToString("#,#.00###;(#,#.00###)", CultureInfo),
+                decimal @decimal => InputType == InputType.Money || InputType == InputType.Percent ? @decimal.ToString("#,#.00###;(#,#.00###)", CultureInfo)
+                                                                                                   : BindConverter.FormatValue(@decimal, CultureInfo),
                 DateTime dateTimeValue => BindConverter.FormatValue(dateTimeValue, _dateFormat, CultureInfo),
                 DateTimeOffset dateTimeOffsetValue => BindConverter.FormatValue(dateTimeOffsetValue, _dateFormat, CultureInfo),
                 _ => base.FormatValueAsString(value),
