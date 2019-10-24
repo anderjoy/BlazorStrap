@@ -96,7 +96,8 @@ namespace BlazorStrap
         {
             if (firstRender)
             {
-                if (UnknownParameters.TryGetValue("id", out var id))
+                object id = null;
+                if (UnknownParameters?.TryGetValue("id", out id) ?? false)
                 {
                     var mask = InputType switch
                     {
