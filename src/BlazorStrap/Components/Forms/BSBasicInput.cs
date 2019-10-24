@@ -100,8 +100,8 @@ namespace BlazorStrap
                 {
                     var mask = InputType switch
                     {
-                        InputType.Money => "000.000.000.000.000,00",
-                        InputType.Percent => "000.000.000.000.000,00",
+                        InputType.Money => "0.000.000.000.000,00",
+                        InputType.Percent => "000,00",
                         InputType.Mask => Mask,
                         _ => ""
                     };
