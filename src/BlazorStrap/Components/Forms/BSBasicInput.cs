@@ -101,7 +101,7 @@ namespace BlazorStrap
                     var mask = InputType switch
                     {
                         InputType.Money => "000.000.000.000.000,00",
-                        InputType.Percent => "000.000.000.000,00000",
+                        InputType.Percent => "000.000.000.000.000,00",
                         InputType.Mask => Mask,
                         _ => ""
                     };
@@ -116,7 +116,15 @@ namespace BlazorStrap
                             _ => ""
                         };
 
-                        await new BlazorStrapInterop(JSRuntime).SetMask(id.ToString(), mask, MaskReverse, maskPlaceHolder);
+                        var maskReverse = InputType switch
+                        {
+                            InputType.Money => true,
+                            InputType.Percent => true,
+                            InputType.Mask => MaskReverse,
+                            _ => false
+                        };
+
+                        await new BlazorStrapInterop(JSRuntime).SetMask(id.ToString(), mask, maskReverse, maskPlaceHolder);
                     }
                 }
             }
