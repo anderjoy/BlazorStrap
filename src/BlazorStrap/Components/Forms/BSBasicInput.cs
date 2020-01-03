@@ -43,6 +43,7 @@ namespace BlazorStrap
         [Parameter] public Expression<Func<object>> For { get; set; }
         [Parameter] public InputType InputType { get; set; } = InputType.Text;
         [Parameter] public Size Size { get; set; } = Size.None;
+        [Parameter] public string MaxDate { get; set; } = "9999-12-31";
         [Parameter] public virtual T Value { get; set; }
         [Parameter] public virtual T RadioValue { get; set; }
         [Parameter] public virtual EventCallback<T> ValueChanged { get; set; }
@@ -163,8 +164,8 @@ namespace BlazorStrap
                 {
                     Value = ((string)(object)Value).ToLowerInvariant() != "false" ? (T)(object)"true" : (T)(object)"false";
                 }
-                builder.AddAttribute(8, "checked", Convert.ToBoolean(Value, CultureInfo));
-                builder.AddAttribute(9, "onclick", EventCallback.Factory.Create(this, OnClick));
+                builder.AddAttribute(9, "checked", Convert.ToBoolean(Value, CultureInfo.InvariantCulture));
+                builder.AddAttribute(10, "onclick", EventCallback.Factory.Create(this, OnClick));
             }
             else if(InputType == InputType.Radio)
             {
@@ -172,22 +173,27 @@ namespace BlazorStrap
                 {
                     if (RadioValue.Equals(Value))
                     {
-                        builder.AddAttribute(8, "checked", true);
-                        builder.AddAttribute(9, "onclick", EventCallback.Factory.Create(this, OnClick));
+                        builder.AddAttribute(9, "checked", true);
+                        builder.AddAttribute(10, "onclick", EventCallback.Factory.Create(this, OnClick));
                     }
                     else
                     {
-                        builder.AddAttribute(8, "checked", false);
-                        builder.AddAttribute(9, "onclick", EventCallback.Factory.Create(this, OnClick));
+                        builder.AddAttribute(9, "checked", false);
+                        builder.AddAttribute(10, "onclick", EventCallback.Factory.Create(this, OnClick));
                     }
                 }
             }
             else
             {
-                builder.AddAttribute(8, "value", BindConverter.FormatValue(CurrentValueAsString));
-                builder.AddAttribute(10, "onchange", EventCallback.Factory.CreateBinder<string>(this, OnChange, CurrentValueAsString));
+                builder.AddAttribute(9, "value", BindConverter.FormatValue(CurrentValueAsString));
+                builder.AddAttribute(11, "onchange", EventCallback.Factory.CreateBinder<string>(this, OnChange, CurrentValueAsString));
+
+                if (InputType == InputType.Date && !String.IsNullOrEmpty(MaxDate))
+                {
+                    builder.AddAttribute(12, "max", MaxDate);
+                }
             }
-            builder.AddContent(10, ChildContent);
+            builder.AddContent(13, ChildContent);
             builder.CloseElement();
         }
 

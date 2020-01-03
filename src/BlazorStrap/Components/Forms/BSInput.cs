@@ -56,6 +56,7 @@ namespace BlazorStrap
 
         [Parameter] public InputType InputType { get; set; } = InputType.Text;
         [Parameter] public Size Size { get; set; } = Size.None;
+        [Parameter] public string MaxDate { get; set; } = "9999-12-31";
         [Parameter] public virtual T RadioValue { get; set; }
         [Parameter] public bool IsReadonly { get; set; }
         [Parameter] public bool IsPlaintext { get; set; }
@@ -191,24 +192,28 @@ namespace BlazorStrap
             {
                 if (RadioValue.Equals(Value))
                 {
-                    builder.AddAttribute(8, "checked", true);
-                    builder.AddAttribute(9, "onclick", EventCallback.Factory.Create(this, OnClick));
+                    builder.AddAttribute(9, "checked", true);
+                    builder.AddAttribute(10, "onclick", EventCallback.Factory.Create(this, OnClick));
                 }
                 else
                 {
-                    builder.AddAttribute(8, "checked", false);
-                    builder.AddAttribute(9, "onclick", EventCallback.Factory.Create(this, OnClick));
+                    builder.AddAttribute(9, "checked", false);
+                    builder.AddAttribute(10, "onclick", EventCallback.Factory.Create(this, OnClick));
                 }
             }
             else
             {
                 builder.AddAttribute(9, "value", BindConverter.FormatValue(CurrentValueAsString));
                 builder.AddAttribute(10, "onchange", EventCallback.Factory.CreateBinder<string>(this, OnChange, CurrentValueAsString));
+
+                if (InputType == InputType.Date && !String.IsNullOrEmpty(MaxDate))
+                {
+                   builder.AddAttribute(11, "max", MaxDate);
+                }
             }
 
-            builder.AddAttribute(11, "onblur", EventCallback.Factory.Create(this, () => { _touched = true; ValidateField(base.FieldIdentifier) ; }));
-
-            builder.AddContent(12, ChildContent);
+            builder.AddAttribute(12, "onblur", EventCallback.Factory.Create(this, () => { _touched = true; ValidateField(base.FieldIdentifier) ; }));
+            builder.AddContent(13, ChildContent);
             builder.CloseElement();
         }
 
@@ -333,6 +338,21 @@ namespace BlazorStrap
                 else
                 {
                     validationErrorMessage = string.Format(CultureInfo, "The {0} field must be a date.", FieldIdentifier.FieldName);
+                    return false;
+                }
+            }
+            else if (type.GenericTypeArguments.Length > 0 && type.GenericTypeArguments[0].IsEnum)
+            {
+                try
+                {
+                    result = (T)Enum.Parse(type.GenericTypeArguments[0].UnderlyingSystemType, value);
+                    validationErrorMessage = null;
+                    return true;
+                }
+                catch (ArgumentException)
+                {
+                    result = default;
+                    validationErrorMessage = $"The {FieldIdentifier.FieldName} field is not valid.";
                     return false;
                 }
             }
